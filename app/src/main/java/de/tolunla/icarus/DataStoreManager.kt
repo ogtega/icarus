@@ -6,18 +6,13 @@ import androidx.datastore.preferences.core.edit
 import androidx.datastore.preferences.core.emptyPreferences
 import androidx.datastore.preferences.core.stringPreferencesKey
 import androidx.datastore.preferences.preferencesDataStore
-import androidx.lifecycle.ViewModel
-import androidx.lifecycle.asLiveData
-import androidx.lifecycle.liveData
 import com.github.scribejava.core.model.OAuth1AccessToken
 import com.github.scribejava.core.model.OAuth1RequestToken
 import com.github.scribejava.core.model.OAuthConstants
 import com.github.scribejava.core.model.Token
-import dagger.hilt.android.lifecycle.HiltViewModel
 import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.catch
-import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.map
 import java.io.IOException
 import javax.inject.Inject
@@ -50,8 +45,6 @@ class DataStoreManager @Inject constructor(@ApplicationContext appContext: Conte
             preferences[TokenKeys.ACCESS_TOKEN] = rawResponse
         }
     }
-
-    suspend fun fetchInitialPreferences() = mapTokenData(dataStore.data.first().toPreferences())
 
     fun getTokenData(): Flow<TokenData> = dataStore.data.catch { exception ->
         if (exception is IOException) {
