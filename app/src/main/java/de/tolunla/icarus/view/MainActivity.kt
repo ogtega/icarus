@@ -13,11 +13,10 @@ import com.github.scribejava.httpclient.okhttp.OkHttpHttpClientConfig
 import dagger.hilt.android.AndroidEntryPoint
 import de.tolunla.icarus.BuildConfig
 import de.tolunla.icarus.DataStoreManager
-import de.tolunla.icarus.R
+import de.tolunla.icarus.databinding.ActivityMainBinding
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.withContext
 import okhttp3.HttpUrl.Companion.toHttpUrl
 import okhttp3.OkHttpClient
@@ -33,6 +32,8 @@ class MainActivity : AppCompatActivity() {
     @Inject
     lateinit var dataStoreManager: DataStoreManager
 
+    lateinit var binding: ActivityMainBinding
+
     private val TAG: String = this::class.java.name
 
     private val service = ServiceBuilder(BuildConfig.TWITTER_API_KEY)
@@ -43,49 +44,59 @@ class MainActivity : AppCompatActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        setContentView(R.layout.activity_main)
+        binding = ActivityMainBinding.inflate(layoutInflater)
+        setSupportActionBar(binding.toolbar)
+        setContentView(binding.root)
+    }
 
-        // May block UI thread, oh well...
-        val tokenData = runBlocking { dataStoreManager.getTokenData().first() }
-        val verifier = intent.data?.getQueryParameter(OAuthConstants.VERIFIER)
+    override fun onStart() {
+        super.onStart()
 
-        lifecycleScope.launch(Dispatchers.Main) {
-            if (tokenData.requestToken != null && verifier != null) {
-                val accessToken = withContext(Dispatchers.IO) {
-                    service.getAccessToken(
-                        dataStoreManager.getTokenData().first().requestToken,
-                        verifier
-                    )
+        lifecycleScope.launch {
+            if (authenticate()) {
+                withContext(Dispatchers.IO) {
+                    val request = Request.Builder().url(
+                        "https://api.twitter.com/1.1/statuses/home_timeline.json".toHttpUrl()
+                            .newBuilder()
+                            .build()
+                    ).build()
+
+                    val body = withContext(Dispatchers.IO) {
+                        client.newCall(request).execute().body?.string()
+                    }
+
+                    Log.d(TAG, body ?: "")
                 }
-
-                dataStoreManager.setAccessToken(accessToken.rawResponse)
-            } else if (tokenData.accessToken == null) {
-                val authUrl = withContext(Dispatchers.IO) {
-                    val requestToken = service.requestToken
-                    dataStoreManager.setRequestToken(requestToken.rawResponse)
-                    service.getAuthorizationUrl(requestToken)
-                }
-
-                val intent = Intent(Intent.ACTION_VIEW, Uri.parse(authUrl))
-                startActivity(intent)
-                return@launch
-            }
-
-            // We are authenticated
-
-            withContext(Dispatchers.IO) {
-                val request = Request.Builder().url(
-                    "https://api.twitter.com/1.1/statuses/home_timeline.json".toHttpUrl()
-                        .newBuilder()
-                        .build()
-                ).build()
-
-                val body = withContext(Dispatchers.IO) {
-                    client.newCall(request).execute().body?.string()
-                }
-
-                Log.d(TAG, body ?: "")
             }
         }
+    }
+
+    private suspend fun authenticate(): Boolean {
+        // May block UI thread, oh well...
+        val tokenData = dataStoreManager.getTokenData().first()
+        val verifier = intent.data?.getQueryParameter(OAuthConstants.VERIFIER)
+
+        if (tokenData.requestToken != null && verifier != null) {
+            val accessToken = withContext(Dispatchers.IO) {
+                service.getAccessToken(
+                    dataStoreManager.getTokenData().first().requestToken,
+                    verifier
+                )
+            }
+
+            dataStoreManager.setAccessToken(accessToken.rawResponse)
+        } else if (tokenData.accessToken == null) {
+            val authUrl = withContext(Dispatchers.IO) {
+                val requestToken = service.requestToken
+                dataStoreManager.setRequestToken(requestToken.rawResponse)
+                service.getAuthorizationUrl(requestToken)
+            }
+
+            val intent = Intent(Intent.ACTION_VIEW, Uri.parse(authUrl))
+            startActivity(intent)
+            return false
+        }
+
+        return tokenData.requestToken != null
     }
 }
