@@ -3,9 +3,11 @@ package de.tolunla.icarus.view
 import android.content.Intent
 import android.net.Uri
 import android.os.Bundle
-import android.util.Log
 import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.lifecycleScope
+import androidx.navigation.NavController
+import androidx.navigation.NavGraph
+import androidx.navigation.fragment.NavHostFragment
 import com.github.scribejava.apis.TwitterApi
 import com.github.scribejava.core.builder.ServiceBuilder
 import com.github.scribejava.core.model.OAuthConstants
@@ -13,14 +15,13 @@ import com.github.scribejava.httpclient.okhttp.OkHttpHttpClientConfig
 import dagger.hilt.android.AndroidEntryPoint
 import de.tolunla.icarus.BuildConfig
 import de.tolunla.icarus.DataStoreManager
+import de.tolunla.icarus.R
 import de.tolunla.icarus.databinding.ActivityMainBinding
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
-import okhttp3.HttpUrl.Companion.toHttpUrl
 import okhttp3.OkHttpClient
-import okhttp3.Request
 import javax.inject.Inject
 
 @AndroidEntryPoint
@@ -32,9 +33,9 @@ class MainActivity : AppCompatActivity() {
     @Inject
     lateinit var dataStoreManager: DataStoreManager
 
-    lateinit var binding: ActivityMainBinding
-
-    private val TAG: String = this::class.java.name
+    private lateinit var binding: ActivityMainBinding
+    private lateinit var navController: NavController
+    private lateinit var navGraph: NavGraph
 
     private val service = ServiceBuilder(BuildConfig.TWITTER_API_KEY)
         .apiSecret(BuildConfig.TWITTER_API_SECRET)
@@ -45,28 +46,19 @@ class MainActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         binding = ActivityMainBinding.inflate(layoutInflater)
-        setSupportActionBar(binding.toolbar)
-        setContentView(binding.root)
-    }
 
-    override fun onStart() {
-        super.onStart()
+        // setContentView to a splash screen
+
+        navController = binding.fragmentContainerView.getFragment<NavHostFragment>().navController
+        navGraph = navController.navInflater.inflate(R.navigation.nav_graph)
 
         lifecycleScope.launch {
             if (authenticate()) {
-                withContext(Dispatchers.IO) {
-                    val request = Request.Builder().url(
-                        "https://api.twitter.com/1.1/statuses/home_timeline.json".toHttpUrl()
-                            .newBuilder()
-                            .build()
-                    ).build()
-
-                    val body = withContext(Dispatchers.IO) {
-                        client.newCall(request).execute().body?.string()
-                    }
-
-                    Log.d(TAG, body ?: "")
-                }
+                navController.graph = navGraph
+                setSupportActionBar(binding.toolbar)
+                setContentView(binding.root)
+            } else {
+                finish()
             }
         }
     }
