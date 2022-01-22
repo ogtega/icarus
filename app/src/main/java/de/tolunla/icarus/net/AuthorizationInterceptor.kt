@@ -12,7 +12,6 @@ import okhttp3.Response
 import javax.inject.Inject
 import javax.inject.Singleton
 
-@Singleton
 class AuthorizationInterceptor @Inject constructor(private val dataStoreManager: DataStoreManager) :
     Interceptor {
 

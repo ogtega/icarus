@@ -14,7 +14,6 @@ import javax.inject.Singleton
 object HTTPModule {
 
     @Provides
-    @Singleton
     fun provideCache(ctx: Application): Cache {
         val cacheSize = 10 * 1024 * 1024L
         return Cache(ctx.cacheDir, cacheSize)
