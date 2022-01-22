@@ -1,5 +1,7 @@
 package de.tolunla.icarus.view.viewmodel
 
+import android.util.Log
+import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
@@ -12,26 +14,22 @@ import javax.inject.Inject
 
 @HiltViewModel
 class TweetViewModel @Inject constructor(private val repo: TweetRepository) : ViewModel() {
-    val tweets: MutableLiveData<List<Tweet>> = MutableLiveData()
+    val ready: MutableLiveData<Boolean> = MutableLiveData(true)
+    val tweetLivedata: MutableLiveData<List<Tweet>> = MutableLiveData()
 
-    suspend fun loadTweets(
-        order: TweetRepository.Order = TweetRepository.Order.BACKWARDS,
-        count: Int = 20
-    ) {
-        tweets.value = repo.getTweets(null, order, count)
+    suspend fun getOlderTweets(from: Long?, count: Int = 20): MutableLiveData<List<Tweet>> {
+        ready.value = false
+        tweetLivedata.value = repo.getOlderTweets(from, count).toMutableList()
+        return tweetLivedata
     }
 
-    suspend fun loadTweetsFrom(
-        id: Long,
-        order: TweetRepository.Order = TweetRepository.Order.BACKWARDS,
-        count: Int = 20
-    ) {
-        tweets.value = repo.getTweets(id, order, count)
+    suspend fun getNewerTweets(count: Int = 20): MutableLiveData<List<Tweet>> {
+        ready.value = false
+        tweetLivedata.value = repo.getNewerTweets(count)
+        return tweetLivedata
     }
-
-    suspend fun getLatest() = repo.getLatest()
 
     fun insert(tweet: Tweet) = viewModelScope.launch(Dispatchers.IO) {
-        repo.insert(tweet)
+        repo.insert(listOf(tweet))
     }
 }
