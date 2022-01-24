@@ -10,7 +10,6 @@ import kotlinx.coroutines.runBlocking
 import okhttp3.Interceptor
 import okhttp3.Response
 import javax.inject.Inject
-import javax.inject.Singleton
 
 class AuthorizationInterceptor @Inject constructor(private val dataStoreManager: DataStoreManager) :
     Interceptor {

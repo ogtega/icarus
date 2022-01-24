@@ -9,7 +9,10 @@ import de.tolunla.icarus.db.entity.Tweet
 import javax.inject.Inject
 
 @ExperimentalPagingApi
-class TweetRemoteMediator @Inject constructor(val tweetDao: TweetDao, private val twitter: Twitter) :
+class TweetRemoteMediator @Inject constructor(
+    val tweetDao: TweetDao,
+    private val twitter: Twitter
+) :
     RemoteMediator<Int, Tweet>() {
     override suspend fun load(loadType: LoadType, state: PagingState<Int, Tweet>): MediatorResult {
         return try {
