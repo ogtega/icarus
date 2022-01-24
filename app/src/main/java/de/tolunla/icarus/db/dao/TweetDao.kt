@@ -1,5 +1,6 @@
 package de.tolunla.icarus.db.dao
 
+import androidx.paging.PagingSource
 import androidx.room.*
 import de.tolunla.icarus.db.entity.Tweet
 
@@ -18,7 +19,10 @@ interface TweetDao {
     @Query("SELECT MIN(id) FROM tweet")
     suspend fun getOldest(): Long
 
-    @Insert(onConflict = OnConflictStrategy.IGNORE)
+    @Query("SELECT * FROM tweet ORDER BY id DESC")
+    fun pagingSource(): PagingSource<Int, Tweet>
+
+    @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun insertAll(tweets: List<Tweet>)
 
     @Delete

@@ -2,12 +2,14 @@ package de.tolunla.icarus.view.adapter
 
 import android.view.LayoutInflater
 import android.view.ViewGroup
+import androidx.paging.PagingDataAdapter
+import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.RecyclerView
 import de.tolunla.icarus.databinding.TweetListItemBinding
 import de.tolunla.icarus.db.entity.Tweet
 
-class FeedAdapter(val tweets: MutableList<Tweet>) :
-    RecyclerView.Adapter<FeedAdapter.ViewHolder>() {
+class FeedAdapter :
+    PagingDataAdapter<Tweet, FeedAdapter.ViewHolder>(TweetComparator) {
 
     private lateinit var inflater: LayoutInflater
 
@@ -23,15 +25,26 @@ class FeedAdapter(val tweets: MutableList<Tweet>) :
 
     override fun onBindViewHolder(holder: ViewHolder, position: Int) {
         val binding = holder.binding
-        val tweet = tweets[position]
+        val tweet = getItem(position)
 
-        binding.name.text = tweet.user.name
-        binding.username.text = tweet.user.username
-        binding.body.text = tweet.text
+        tweet?.let {
+            binding.name.text = tweet.user.name
+            binding.username.text = tweet.user.username
+            binding.body.text = tweet.text
+            binding.age.text = tweet.id.toString()
+        }
     }
-
-    override fun getItemCount() = tweets.size
 
     inner class ViewHolder(val binding: TweetListItemBinding) :
         RecyclerView.ViewHolder(binding.root)
+
+    object TweetComparator : DiffUtil.ItemCallback<Tweet>() {
+        override fun areItemsTheSame(oldItem: Tweet, newItem: Tweet): Boolean {
+            return oldItem.id == newItem.id
+        }
+
+        override fun areContentsTheSame(oldItem: Tweet, newItem: Tweet): Boolean {
+            return oldItem == newItem
+        }
+    }
 }

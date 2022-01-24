@@ -17,7 +17,6 @@ object DatabaseModule {
     @Provides
     fun provideDatabase(@ApplicationContext app: Context) =
         Room.databaseBuilder(app, AppDatabase::class.java, "icarus.db")
-            .allowMainThreadQueries()
             .build()
 
     @Singleton
