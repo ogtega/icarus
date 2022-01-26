@@ -1,5 +1,6 @@
 package de.tolunla.icarus.net
 
+import android.util.Log
 import androidx.paging.ExperimentalPagingApi
 import androidx.paging.LoadType
 import androidx.paging.PagingState
@@ -33,6 +34,8 @@ class TweetRemoteMediator @Inject constructor(
             }
 
             tweetDao.insertAll(response)
+
+            Log.d(this::class.java.name, "Fetched ${response.size} tweets")
 
             MediatorResult.Success(endOfPaginationReached = false)
         } catch (e: Exception) {

@@ -3,11 +3,21 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/nav_graph"
-    app:startDestination="@id/feed_fragment_destination">
+    app:startDestination="@id/feed_dst">
 
     <fragment
-        android:id="@+id/feed_fragment_destination"
+        android:id="@+id/feed_dst"
         android:name="de.tolunla.icarus.view.FeedFragment"
+        tools:layout="@layout/fragment_main" />
+
+    <fragment
+        android:id="@+id/search_dst"
+        android:name="androidx.navigation.fragment.NavHostFragment"
+        tools:layout="@layout/fragment_main" />
+
+    <fragment
+        android:id="@+id/profile_dst"
+        android:name="androidx.navigation.fragment.NavHostFragment"
         tools:layout="@layout/fragment_main" />
 
 </navigation>

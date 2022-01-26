@@ -31,7 +31,7 @@ class FeedAdapter :
             binding.name.text = tweet.user.name
             binding.username.text = tweet.user.username
             binding.body.text = tweet.text
-            binding.age.text = tweet.id.toString()
+            binding.age.text = tweet.createdAt
         }
     }
 
