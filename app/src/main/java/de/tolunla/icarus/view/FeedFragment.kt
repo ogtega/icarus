@@ -47,11 +47,15 @@ class FeedFragment : Fragment() {
             tweetDao.pagingSource()
         }
 
-        pager.flow.asLiveData().observe(viewLifecycleOwner, {
+        pager.flow.asLiveData().observe(viewLifecycleOwner) {
             lifecycleScope.launch {
                 feedAdapter.submitData(it)
             }
-        })
+        }
+
+        binding.swipeRefresh.setOnRefreshListener {
+            feedAdapter.refresh()
+        }
 
         return binding.root
     }
