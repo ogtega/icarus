@@ -1,4 +1,5 @@
 <resources>
     <string name="app_name">Icarus</string>
     <string name="compose_new_tweet">Compose a new Tweet.</string>
+    <string name="new_tweets">New Tweets</string>
 </resources>
