@@ -1,7 +1,6 @@
 package de.tolunla.icarus.view
 
 import android.os.Bundle
-import android.util.Log
 import android.view.Gravity
 import android.view.LayoutInflater
 import android.view.View
@@ -37,6 +36,7 @@ class FeedFragment : Fragment() {
     lateinit var tweetDao: TweetDao
     private lateinit var binding: FragmentMainBinding
     private lateinit var newTweetBinding: NewTweetChipBinding
+    private lateinit var newPopupWindow: PopupWindow
 
     private val feedAdapter = FeedAdapter()
 
@@ -45,7 +45,6 @@ class FeedFragment : Fragment() {
         container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View {
-        var tweetCount = 0
         binding = FragmentMainBinding.inflate(inflater)
         newTweetBinding = NewTweetChipBinding.inflate(inflater)
 
@@ -56,34 +55,31 @@ class FeedFragment : Fragment() {
             tweetDao.pagingSource()
         }
 
-        val newPopupWindow = PopupWindow(
+        newPopupWindow = PopupWindow(
             newTweetBinding.root,
             ViewGroup.LayoutParams.WRAP_CONTENT,
             ViewGroup.LayoutParams.WRAP_CONTENT
         )
 
-        pager.flow.asLiveData().observe(viewLifecycleOwner) {
+        pager.flow.asLiveData().observe(viewLifecycleOwner) { data ->
             lifecycleScope.launch {
-                Log.i(this::class.java.name, "Submitted: ${feedAdapter.itemCount}")
-                tweetCount = feedAdapter.itemCount
-                feedAdapter.submitData(it)
+                feedAdapter.submitData(data)
+
+                (binding.feedList.layoutManager as LinearLayoutManager).let { layoutManager ->
+                    if (layoutManager.findFirstCompletelyVisibleItemPosition() > 0) {
+                        newPopupWindow.showAtLocation(
+                            binding.root,
+                            Gravity.TOP or Gravity.CENTER_HORIZONTAL,
+                            0,
+                            binding.swipeRefresh.let { it.progressCircleDiameter + it.progressViewEndOffset })
+                    }
+                }
             }
         }
 
         feedAdapter.loadStateFlow.asLiveData().observe(viewLifecycleOwner) { loadStates ->
             if (loadStates.mediator?.refresh is LoadState.NotLoading) {
                 binding.swipeRefresh.isRefreshing = false
-            }
-
-            // Reached before the pager submits the paging data to the adapter
-            if (loadStates.mediator?.prepend is LoadState.NotLoading && tweetCount != 0) {
-                if (tweetCount < feedAdapter.itemCount) {
-                    newPopupWindow.showAtLocation(
-                        binding.root,
-                        Gravity.TOP or Gravity.CENTER_HORIZONTAL,
-                        0,
-                        binding.swipeRefresh.let { it.progressCircleDiameter + it.progressViewEndOffset })
-                }
             }
         }
 
@@ -92,6 +88,7 @@ class FeedFragment : Fragment() {
         binding.feedList.addOnScrollListener(object : RecyclerView.OnScrollListener() {
             override fun onScrolled(recyclerView: RecyclerView, dx: Int, dy: Int) {
                 (recyclerView.layoutManager as LinearLayoutManager).let {
+
                     if (it.findFirstCompletelyVisibleItemPosition() == 0) {
                         newPopupWindow.dismiss()
                     }
@@ -108,5 +105,10 @@ class FeedFragment : Fragment() {
         }
 
         return binding.root
+    }
+
+    override fun onDestroyView() {
+        super.onDestroyView()
+        newPopupWindow.dismiss()
     }
 }
