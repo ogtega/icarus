@@ -6,6 +6,8 @@ import android.view.ViewGroup
 import androidx.paging.PagingDataAdapter
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.RecyclerView
+import coil.load
+import coil.transform.CircleCropTransformation
 import de.tolunla.icarus.databinding.TweetListItemBinding
 import de.tolunla.icarus.db.entity.Tweet
 import java.text.SimpleDateFormat
@@ -35,8 +37,12 @@ class FeedAdapter :
 
         tweet?.let {
             binding.name.text = it.user.name
-            binding.username.text = it.user.username
+            binding.username.text = "@${it.user.username}"
             binding.body.text = it.text
+
+            binding.profileImg.load(it.user.profileImage) {
+                transformations(CircleCropTransformation())
+            }
 
             dateFormat.parse(it.createdAt)?.let { date ->
                 val elapsed = (System.currentTimeMillis() - date.time)
