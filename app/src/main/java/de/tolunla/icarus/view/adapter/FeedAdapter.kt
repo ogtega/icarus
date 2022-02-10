@@ -40,7 +40,7 @@ class FeedAdapter :
             binding.username.text = "@${it.user.username}"
             binding.body.text = it.text
 
-            binding.profileImg.load(it.user.profileImage) {
+            binding.profileImg.load(it.user.profileImage.replace("normal", "bigger")) {
                 transformations(CircleCropTransformation())
             }
 
