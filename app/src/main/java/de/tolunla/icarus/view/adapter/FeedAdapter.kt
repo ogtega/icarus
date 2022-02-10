@@ -1,5 +1,6 @@
 package de.tolunla.icarus.view.adapter
 
+import android.text.format.DateUtils
 import android.view.LayoutInflater
 import android.view.ViewGroup
 import androidx.paging.PagingDataAdapter
@@ -7,11 +8,16 @@ import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.RecyclerView
 import de.tolunla.icarus.databinding.TweetListItemBinding
 import de.tolunla.icarus.db.entity.Tweet
+import java.text.SimpleDateFormat
+import java.util.*
 
 class FeedAdapter :
     PagingDataAdapter<Tweet, FeedAdapter.ViewHolder>(TweetComparator) {
 
     private lateinit var inflater: LayoutInflater
+    private val dateFormat = SimpleDateFormat("E MMM dd hh:mm:ss Z yyyy", Locale.getDefault())
+    private val monthDateFormat = SimpleDateFormat("MMM d", Locale.getDefault())
+    private val yearDateFormat = SimpleDateFormat("MMM d, yyyy", Locale.getDefault())
 
     override fun onAttachedToRecyclerView(recyclerView: RecyclerView) {
         super.onAttachedToRecyclerView(recyclerView)
@@ -28,10 +34,21 @@ class FeedAdapter :
         val tweet = getItem(position)
 
         tweet?.let {
-            binding.name.text = tweet.user.name
-            binding.username.text = tweet.user.username
-            binding.body.text = tweet.text
-            binding.age.text = tweet.createdAt
+            binding.name.text = it.user.name
+            binding.username.text = it.user.username
+            binding.body.text = it.text
+
+            dateFormat.parse(it.createdAt)?.let { date ->
+                val elapsed = (System.currentTimeMillis() - date.time)
+                binding.age.text = when {
+                    elapsed < DateUtils.SECOND_IN_MILLIS * 6 -> "Just now"
+                    elapsed < DateUtils.MINUTE_IN_MILLIS -> "${elapsed / DateUtils.SECOND_IN_MILLIS}m"
+                    elapsed < DateUtils.HOUR_IN_MILLIS -> "${elapsed / DateUtils.MINUTE_IN_MILLIS}m"
+                    elapsed < DateUtils.DAY_IN_MILLIS -> "${elapsed / DateUtils.HOUR_IN_MILLIS}h"
+                    elapsed < DateUtils.DAY_IN_MILLIS * 365.25 -> monthDateFormat.format(date)
+                    else -> yearDateFormat.format(date)
+                }
+            }
         }
     }
 
