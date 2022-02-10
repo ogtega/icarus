@@ -1,11 +1,9 @@
 package de.tolunla.icarus.view
 
 import android.os.Bundle
-import android.view.Gravity
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.PopupWindow
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.asLiveData
 import androidx.lifecycle.lifecycleScope
@@ -17,7 +15,6 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import dagger.hilt.android.AndroidEntryPoint
 import de.tolunla.icarus.databinding.FragmentMainBinding
-import de.tolunla.icarus.databinding.NewTweetChipBinding
 import de.tolunla.icarus.db.dao.TweetDao
 import de.tolunla.icarus.net.TweetRemoteMediator
 import de.tolunla.icarus.net.Twitter
@@ -35,8 +32,6 @@ class FeedFragment : Fragment() {
     @Inject
     lateinit var tweetDao: TweetDao
     private lateinit var binding: FragmentMainBinding
-    private lateinit var newTweetBinding: NewTweetChipBinding
-    private lateinit var newPopupWindow: PopupWindow
 
     private val feedAdapter = FeedAdapter()
 
@@ -46,7 +41,6 @@ class FeedFragment : Fragment() {
         savedInstanceState: Bundle?
     ): View {
         binding = FragmentMainBinding.inflate(inflater)
-        newTweetBinding = NewTweetChipBinding.inflate(inflater)
 
         val pager = Pager(
             config = PagingConfig(pageSize = 100, prefetchDistance = 0),
@@ -55,23 +49,13 @@ class FeedFragment : Fragment() {
             tweetDao.pagingSource()
         }
 
-        newPopupWindow = PopupWindow(
-            newTweetBinding.root,
-            ViewGroup.LayoutParams.WRAP_CONTENT,
-            ViewGroup.LayoutParams.WRAP_CONTENT
-        )
-
         pager.flow.asLiveData().observe(viewLifecycleOwner) { data ->
             lifecycleScope.launch {
                 feedAdapter.submitData(data)
 
                 (binding.feedList.layoutManager as LinearLayoutManager).let { layoutManager ->
                     if (layoutManager.findFirstCompletelyVisibleItemPosition() > 0) {
-                        newPopupWindow.showAtLocation(
-                            binding.root,
-                            Gravity.TOP or Gravity.CENTER_HORIZONTAL,
-                            0,
-                            binding.swipeRefresh.let { 2 * it.progressCircleDiameter + it.progressViewEndOffset })
+                        binding.newTweets.visibility = View.VISIBLE
                     }
                 }
             }
@@ -90,13 +74,13 @@ class FeedFragment : Fragment() {
                 (recyclerView.layoutManager as LinearLayoutManager).let {
 
                     if (it.findFirstCompletelyVisibleItemPosition() == 0) {
-                        newPopupWindow.dismiss()
+                        binding.newTweets.visibility = View.GONE
                     }
                 }
             }
         })
 
-        newTweetBinding.root.setOnClickListener {
+        binding.newTweets.setOnClickListener {
             binding.feedList.scrollToPosition(0)
         }
 
@@ -105,10 +89,5 @@ class FeedFragment : Fragment() {
         }
 
         return binding.root
-    }
-
-    override fun onDestroyView() {
-        super.onDestroyView()
-        newPopupWindow.dismiss()
     }
 }
