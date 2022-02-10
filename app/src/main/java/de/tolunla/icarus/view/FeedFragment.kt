@@ -71,7 +71,7 @@ class FeedFragment : Fragment() {
                             binding.root,
                             Gravity.TOP or Gravity.CENTER_HORIZONTAL,
                             0,
-                            binding.swipeRefresh.let { it.progressCircleDiameter + it.progressViewEndOffset })
+                            binding.swipeRefresh.let { 2 * it.progressCircleDiameter + it.progressViewEndOffset })
                     }
                 }
             }
