@@ -2,7 +2,7 @@
 <menu xmlns:android="http://schemas.android.com/apk/res/android">
 
     <item
-        android:id="@id/feed_dst"
+        android:id="@id/home_feed_dst"
         android:icon="@drawable/ic_outline_home_24"
         android:title="" />
 

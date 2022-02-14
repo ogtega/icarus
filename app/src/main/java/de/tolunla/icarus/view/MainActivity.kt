@@ -71,7 +71,7 @@ class MainActivity : AppCompatActivity() {
     private fun setupNavigation() {
         navController.graph = navGraph
         navController.addOnDestinationChangedListener { controller, destination, arguments ->
-            if (destination.id == R.id.feed_dst) binding.floatingActionButton.show() else binding.floatingActionButton.hide()
+            if (destination.id == R.id.home_feed_dst) binding.floatingActionButton.show() else binding.floatingActionButton.hide()
         }
 
         setSupportActionBar(binding.toolbar)

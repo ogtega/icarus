@@ -3,10 +3,10 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/nav_graph"
-    app:startDestination="@id/feed_dst">
+    app:startDestination="@id/home_feed_dst">
 
     <fragment
-        android:id="@+id/feed_dst"
+        android:id="@+id/home_feed_dst"
         android:name="de.tolunla.icarus.view.FeedFragment"
         tools:layout="@layout/fragment_main" />
 

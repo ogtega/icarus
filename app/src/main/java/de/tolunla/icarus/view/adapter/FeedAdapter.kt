@@ -1,6 +1,7 @@
 package de.tolunla.icarus.view.adapter
 
 import android.text.format.DateUtils
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.ViewGroup
 import androidx.paging.PagingDataAdapter
@@ -40,6 +41,10 @@ class FeedAdapter :
             binding.name.text = it.user.name
             binding.username.text = "@${it.user.username}"
             binding.body.text = it.text
+
+            binding.root.setOnClickListener {
+                Log.d(this::class.java.name, tweet.id.toString())
+            }
 
             binding.profileImg.load(it.user.profileImage.replace("normal", "bigger")) {
                 transformations(CircleCropTransformation())
