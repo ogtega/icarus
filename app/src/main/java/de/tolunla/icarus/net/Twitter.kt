@@ -56,7 +56,10 @@ class Twitter @Inject constructor(private val client: OkHttpClient) {
 
         return withContext(Dispatchers.IO) {
             val res = client.newCall(req).execute()
-            if (res.code != 200) return@withContext null
+            if (res.code != 200) {
+                res.body?.close()
+                return@withContext null
+            }
 
             val bodyText = res.body?.string()
 
@@ -71,7 +74,10 @@ class Twitter @Inject constructor(private val client: OkHttpClient) {
 
         return withContext(Dispatchers.IO) {
             val res = client.newCall(req).execute()
-            if (res.code != 200) return@withContext null
+            if (res.code != 200) {
+                res.body?.close()
+                return@withContext null
+            }
 
             val bodyText = res.body?.string()
             res.body?.close()

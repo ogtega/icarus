@@ -8,6 +8,7 @@ import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.RecyclerView
 import coil.load
 import coil.transform.CircleCropTransformation
+import coil.transform.RoundedCornersTransformation
 import de.tolunla.icarus.databinding.TweetListItemBinding
 import de.tolunla.icarus.db.entity.Tweet
 import java.text.SimpleDateFormat
@@ -42,6 +43,12 @@ class FeedAdapter :
 
             binding.profileImg.load(it.user.profileImage.replace("normal", "bigger")) {
                 transformations(CircleCropTransformation())
+            }
+
+            it.entities?.media?.get(0)?.url.let { url ->
+                binding.media.load(url) {
+                    transformations(RoundedCornersTransformation(0.1f))
+                }
             }
 
             dateFormat.parse(it.createdAt)?.let { date ->
