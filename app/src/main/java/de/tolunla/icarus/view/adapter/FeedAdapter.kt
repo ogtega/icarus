@@ -45,8 +45,9 @@ class FeedAdapter :
                 transformations(CircleCropTransformation())
             }
 
-            it.entities?.media?.get(0)?.url.let { url ->
-                binding.media.load(url) {
+            it.entities?.media?.get(0)?.let { media ->
+                if (media.type == "photo")
+                binding.media.load(media.url) {
                     transformations(RoundedCornersTransformation(0.1f))
                 }
             }
