@@ -1,28 +1,28 @@
 package de.tolunla.icarus.view
 
 import android.os.Bundle
-import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.GridLayout
 import android.widget.ImageView
 import androidx.fragment.app.Fragment
+import coil.ImageLoader
 import coil.load
+import coil.request.ImageRequest
 import coil.transform.CircleCropTransformation
 import dagger.hilt.android.AndroidEntryPoint
 import de.tolunla.icarus.databinding.FragmentTweetThreadBinding
 import de.tolunla.icarus.db.dao.TweetDao
-import de.tolunla.icarus.net.Twitter
 import javax.inject.Inject
 
 @AndroidEntryPoint
 class ThreadFragment : Fragment() {
     @Inject
-    lateinit var twitter: Twitter
+    lateinit var tweetDao: TweetDao
 
     @Inject
-    lateinit var tweetDao: TweetDao
+    lateinit var imageLoader: ImageLoader
 
     private lateinit var binding: FragmentTweetThreadBinding
 
@@ -43,14 +43,25 @@ class ThreadFragment : Fragment() {
                 }
 
                 tweet.entities?.media?.let { mediaList ->
-                    mediaList.forEachIndexed { index, tweetMedia ->
-                        val last = index + 1 == mediaList.size
-                        val imageView = ImageView(context)
-                        binding.imageGrid.addView(imageView, index)
-                        imageView.load(tweetMedia.url)
+                    val photos = mediaList.filter { media -> media.type == "photo" }
+
+                    if (photos.isNotEmpty()) {
+                        binding.imageGrid.visibility = View.VISIBLE
+                    }
+
+                    photos.forEachIndexed { index, tweetMedia ->
+                        val imageView = ImageView(binding.root.context)
+
+                        val request = ImageRequest.Builder(binding.root.context)
+                            .data(tweetMedia.url)
+                            .target(imageView)
+                            .build()
+
+                        imageLoader.enqueue(request)
+
                         val layoutParams = GridLayout.LayoutParams(
                             ViewGroup.LayoutParams(
-                                binding.imageGrid.width.div(if (last) 1 else 2),
+                                binding.imageGrid.width.div(2),
                                 ViewGroup.LayoutParams.WRAP_CONTENT
                             )
                         )
@@ -59,8 +70,8 @@ class ThreadFragment : Fragment() {
                             GridLayout.spec(GridLayout.UNDEFINED, GridLayout.FILL, 1f)
                         imageView.layoutParams = layoutParams
                         imageView.adjustViewBounds = true
-                        imageView.scaleType = ImageView.ScaleType.FIT_XY
-                        Log.d(this::class.java.name, imageView.width.toString())
+                        imageView.scaleType = ImageView.ScaleType.FIT_CENTER
+                        binding.imageGrid.addView(imageView, index)
                     }
                 }
             }

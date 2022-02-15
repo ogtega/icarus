@@ -4,22 +4,27 @@ import android.text.format.DateUtils
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.GridLayout
+import android.widget.ImageView
 import androidx.core.os.bundleOf
 import androidx.navigation.findNavController
 import androidx.paging.PagingDataAdapter
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.RecyclerView
+import coil.ImageLoader
 import coil.load
+import coil.request.ImageRequest
 import coil.transform.CircleCropTransformation
-import coil.transform.RoundedCornersTransformation
 import de.tolunla.icarus.R
 import de.tolunla.icarus.databinding.TweetListItemBinding
 import de.tolunla.icarus.db.entity.Tweet
 import java.text.SimpleDateFormat
 import java.util.*
+import javax.inject.Inject
 
-class FeedAdapter :
-    PagingDataAdapter<Tweet, FeedAdapter.ViewHolder>(TweetComparator) {
+class FeedAdapter @Inject constructor(
+    private val imageLoader: ImageLoader
+) : PagingDataAdapter<Tweet, FeedAdapter.ViewHolder>(TweetComparator) {
 
     private lateinit var inflater: LayoutInflater
     private val dateFormat = SimpleDateFormat("E MMM dd hh:mm:ss Z yyyy", Locale.getDefault())
@@ -34,6 +39,11 @@ class FeedAdapter :
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder {
         val binding = TweetListItemBinding.inflate(inflater, parent, false)
         return ViewHolder(binding)
+    }
+
+    override fun onViewRecycled(holder: ViewHolder) {
+        super.onViewRecycled(holder)
+        holder.binding.imageGrid.removeAllViews()
     }
 
     override fun onBindViewHolder(holder: ViewHolder, position: Int) {
@@ -55,20 +65,38 @@ class FeedAdapter :
                 transformations(CircleCropTransformation())
             }
 
-            binding.media.visibility = View.GONE
+            binding.imageGrid.visibility = View.GONE
 
-            it.entities?.also { tweetEntities ->
-                val mediaList = tweetEntities.media
+            it.entities?.media?.let { mediaList ->
+                val photos = mediaList.filter { media -> media.type == "photo" }
 
-                if (mediaList.isNotEmpty()) {
-                    val media = mediaList[0]
-                    if (media.type == "photo") {
-                        binding.media.load(media.url) {
-                            transformations(RoundedCornersTransformation(0.1f))
-                        }
+                if (photos.isNotEmpty()) {
+                    binding.imageGrid.visibility = View.VISIBLE
+                }
 
-                        binding.media.visibility = View.VISIBLE
-                    }
+                photos.forEachIndexed { index, tweetMedia ->
+                    val imageView = ImageView(binding.root.context)
+
+                    val request = ImageRequest.Builder(binding.root.context)
+                        .data(tweetMedia.url)
+                        .target(imageView)
+                        .build()
+
+                    imageLoader.enqueue(request)
+
+                    val layoutParams = GridLayout.LayoutParams(
+                        ViewGroup.LayoutParams(
+                            binding.imageGrid.width.div(2),
+                            ViewGroup.LayoutParams.WRAP_CONTENT
+                        )
+                    )
+
+                    layoutParams.columnSpec =
+                        GridLayout.spec(GridLayout.UNDEFINED, GridLayout.FILL, 1f)
+                    imageView.layoutParams = layoutParams
+                    imageView.adjustViewBounds = true
+                    imageView.scaleType = ImageView.ScaleType.FIT_CENTER
+                    binding.imageGrid.addView(imageView, index)
                 }
             }
 

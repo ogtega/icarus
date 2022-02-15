@@ -7,10 +7,9 @@ import androidx.paging.PagingState
 import androidx.paging.RemoteMediator
 import de.tolunla.icarus.db.dao.TweetDao
 import de.tolunla.icarus.db.entity.Tweet
-import javax.inject.Inject
 
 @ExperimentalPagingApi
-class TweetRemoteMediator @Inject constructor(
+class TweetRemoteMediator(
     val tweetDao: TweetDao,
     private val twitter: Twitter
 ) :

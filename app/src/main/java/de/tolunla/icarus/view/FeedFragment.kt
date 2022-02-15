@@ -13,6 +13,7 @@ import androidx.paging.Pager
 import androidx.paging.PagingConfig
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
+import coil.ImageLoader
 import dagger.hilt.android.AndroidEntryPoint
 import de.tolunla.icarus.databinding.FragmentMainBinding
 import de.tolunla.icarus.db.dao.TweetDao
@@ -31,9 +32,11 @@ class FeedFragment : Fragment() {
 
     @Inject
     lateinit var tweetDao: TweetDao
-    private lateinit var binding: FragmentMainBinding
 
-    private val feedAdapter = FeedAdapter()
+    @Inject
+    lateinit var feedAdapter: FeedAdapter
+
+    private lateinit var binding: FragmentMainBinding
 
     override fun onCreateView(
         inflater: LayoutInflater,
