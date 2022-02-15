@@ -34,7 +34,7 @@ The following **additional** features are implemented:
 
 Here's a walkthrough of implemented user stories:
 
-<img src='https://github.com/ogtega/icarus/blob/3af5f48c0a7b0e1da069658003614f835e1a5e3e/icarus.gif?raw=true' title='Video Walkthrough' width='' alt='Video Walkthrough' />
+<img src='https://github.com/ogtega/icarus/blob/3af5f48c0a7b0e1da069658003614f835e1a5e3e/icarus.gif?raw=true' title='Video Walkthrough' width='300' alt='Video Walkthrough' />
 
 ## Notes
 
