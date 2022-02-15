@@ -4,11 +4,6 @@ import androidx.room.*
 import kotlinx.serialization.*
 import kotlinx.serialization.json.Json
 
-private val jsonFormat = Json {
-    ignoreUnknownKeys = true
-    coerceInputValues = true
-}
-
 @Serializable
 @TypeConverters(Tweet.Converter::class)
 @Entity(indices = [Index(value = ["id"], unique = true)])
@@ -22,6 +17,11 @@ data class Tweet(
     @SerialName("extended_entities") val entities: TweetEntities? = null
 ) {
     object Converter {
+        private val jsonFormat = Json {
+            ignoreUnknownKeys = true
+            coerceInputValues = true
+        }
+
         @TypeConverter
         @JvmStatic
         fun serializeEntities(value: String?): TweetEntities? {

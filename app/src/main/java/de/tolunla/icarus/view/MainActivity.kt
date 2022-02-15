@@ -4,12 +4,16 @@ import android.content.Intent
 import android.net.Uri
 import android.os.Bundle
 import android.view.MenuItem
+import android.view.View
 import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.lifecycleScope
 import androidx.navigation.NavController
 import androidx.navigation.NavGraph
 import androidx.navigation.fragment.NavHostFragment
+import androidx.navigation.ui.AppBarConfiguration
+import androidx.navigation.ui.NavigationUI
 import androidx.navigation.ui.onNavDestinationSelected
+import androidx.navigation.ui.setupActionBarWithNavController
 import com.github.scribejava.apis.TwitterApi
 import com.github.scribejava.core.builder.ServiceBuilder
 import com.github.scribejava.core.model.OAuthConstants
@@ -37,6 +41,7 @@ class MainActivity : AppCompatActivity() {
 
     private lateinit var binding: ActivityMainBinding
     private lateinit var navController: NavController
+    private lateinit var appBarConfig: AppBarConfiguration
     private lateinit var navGraph: NavGraph
 
     private val service = ServiceBuilder(BuildConfig.TWITTER_API_KEY)
@@ -54,6 +59,13 @@ class MainActivity : AppCompatActivity() {
         navController = binding.fragmentContainerView.getFragment<NavHostFragment>().navController
         navGraph = navController.navInflater.inflate(R.navigation.nav_graph)
 
+        // Used to know when we are at a "top level" destination
+        appBarConfig = AppBarConfiguration.Builder(
+            R.id.home_feed_dst,
+            R.id.search_dst,
+            R.id.profile_dst
+        ).build()
+
         binding.bottomNavigation.setOnItemSelectedListener { item ->
             this.onOptionsItemSelected(item)
         }
@@ -70,11 +82,19 @@ class MainActivity : AppCompatActivity() {
 
     private fun setupNavigation() {
         navController.graph = navGraph
-        navController.addOnDestinationChangedListener { controller, destination, arguments ->
-            if (destination.id == R.id.home_feed_dst) binding.floatingActionButton.show() else binding.floatingActionButton.hide()
-        }
-
         setSupportActionBar(binding.toolbar)
+        setupActionBarWithNavController(navController, appBarConfig)
+        NavigationUI.setupWithNavController(binding.bottomNavigation, navController)
+        navController.addOnDestinationChangedListener { _, destination, _ ->
+            if (destination.id == R.id.home_feed_dst) binding.floatingActionButton.show() else binding.floatingActionButton.hide()
+
+            if (!appBarConfig.topLevelDestinations.contains(destination.id)) {
+                binding.appbarLayout.setExpanded(true)
+                binding.bottomNavigation.visibility = View.GONE
+            } else {
+                binding.bottomNavigation.visibility = View.VISIBLE
+            }
+        }
     }
 
     private suspend fun authenticate(): Boolean {
@@ -112,6 +132,12 @@ class MainActivity : AppCompatActivity() {
     }
 
     override fun onSupportNavigateUp(): Boolean {
-        return navController.navigateUp()
+        return navController.navigateUp() || super.onSupportNavigateUp()
+    }
+
+    override fun onBackPressed() {
+        if (navController.popBackStack().not()) {
+            super.onBackPressed()
+        }
     }
 }

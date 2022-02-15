@@ -26,7 +26,7 @@
 
     <TextView
         android:id="@+id/username"
-        android:layout_width="wrap_content"
+        android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:layout_marginStart="8dp"
         android:layout_marginTop="4dp"
@@ -37,14 +37,25 @@
         app:layout_constraintTop_toBottomOf="@+id/name" />
 
     <TextView
-        android:id="@+id/textView3"
+        android:id="@+id/body"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:layout_margin="8dp"
         android:text="TextView"
-        android:textAppearance="@style/TextAppearance.Material3.BodyMedium"
+        android:textAppearance="@style/TextAppearance.Material3.BodyLarge"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/profile_img" />
+
+    <GridLayout
+        android:id="@+id/image_grid"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_margin="8dp"
+        android:columnCount="2"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHeight_min="wrap"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/body" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>

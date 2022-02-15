@@ -8,16 +8,37 @@
     <fragment
         android:id="@+id/home_feed_dst"
         android:name="de.tolunla.icarus.view.FeedFragment"
-        tools:layout="@layout/fragment_main" />
+        tools:layout="@layout/fragment_main">
+        <action
+            android:id="@+id/action_home_feed_dst_to_tweet_thread_dst"
+            app:destination="@id/tweet_thread_dst" />
+    </fragment>
 
     <fragment
         android:id="@+id/search_dst"
         android:name="androidx.navigation.fragment.NavHostFragment"
-        tools:layout="@layout/fragment_main" />
+        tools:layout="@layout/fragment_main">
+        <action
+            android:id="@+id/action_search_dst_to_tweet_thread_dst"
+            app:destination="@id/tweet_thread_dst" />
+    </fragment>
 
     <fragment
         android:id="@+id/profile_dst"
         android:name="androidx.navigation.fragment.NavHostFragment"
-        tools:layout="@layout/fragment_main" />
+        tools:layout="@layout/fragment_main">
+        <action
+            android:id="@+id/action_profile_dst_to_tweet_thread_dst"
+            app:destination="@id/tweet_thread_dst" />
+    </fragment>
+
+    <fragment
+        android:id="@+id/tweet_thread_dst"
+        android:name="de.tolunla.icarus.view.ThreadFragment"
+        tools:layout="@layout/fragment_tweet_thread">
+        <argument
+            android:name="tweet"
+            app:argType="long" />
+    </fragment>
 
 </navigation>

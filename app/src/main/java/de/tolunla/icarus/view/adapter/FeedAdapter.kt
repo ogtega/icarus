@@ -1,15 +1,18 @@
 package de.tolunla.icarus.view.adapter
 
 import android.text.format.DateUtils
-import android.util.Log
 import android.view.LayoutInflater
+import android.view.View
 import android.view.ViewGroup
+import androidx.core.os.bundleOf
+import androidx.navigation.findNavController
 import androidx.paging.PagingDataAdapter
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.RecyclerView
 import coil.load
 import coil.transform.CircleCropTransformation
 import coil.transform.RoundedCornersTransformation
+import de.tolunla.icarus.R
 import de.tolunla.icarus.databinding.TweetListItemBinding
 import de.tolunla.icarus.db.entity.Tweet
 import java.text.SimpleDateFormat
@@ -42,18 +45,30 @@ class FeedAdapter :
             binding.username.text = "@${it.user.username}"
             binding.body.text = it.text
 
-            binding.root.setOnClickListener {
-                Log.d(this::class.java.name, tweet.id.toString())
+            binding.root.setOnClickListener { view ->
+                val bundle = bundleOf("tweet" to tweet.id)
+                view.findNavController()
+                    .navigate(R.id.action_home_feed_dst_to_tweet_thread_dst, bundle)
             }
 
             binding.profileImg.load(it.user.profileImage.replace("normal", "bigger")) {
                 transformations(CircleCropTransformation())
             }
 
-            it.entities?.media?.get(0)?.let { media ->
-                if (media.type == "photo")
-                binding.media.load(media.url) {
-                    transformations(RoundedCornersTransformation(0.1f))
+            binding.media.visibility = View.GONE
+
+            it.entities?.also { tweetEntities ->
+                val mediaList = tweetEntities.media
+
+                if (mediaList.isNotEmpty()) {
+                    val media = mediaList[0]
+                    if (media.type == "photo") {
+                        binding.media.load(media.url) {
+                            transformations(RoundedCornersTransformation(0.1f))
+                        }
+
+                        binding.media.visibility = View.VISIBLE
+                    }
                 }
             }
 

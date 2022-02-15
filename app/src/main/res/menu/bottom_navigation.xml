@@ -7,7 +7,7 @@
         android:title="" />
 
     <item
-        android:id="@+id/search_dst"
+        android:id="@id/search_dst"
         android:icon="@drawable/ic_outline_search_24"
         android:title="" />
 
