@@ -12,6 +12,9 @@
         <action
             android:id="@+id/action_home_feed_dst_to_tweet_thread_dst"
             app:destination="@id/tweet_thread_dst" />
+        <action
+            android:id="@+id/action_home_feed_dst_to_compose_sheet_dst"
+            app:destination="@id/compose_sheet_dst" />
     </fragment>
 
     <fragment
@@ -39,6 +42,14 @@
         <argument
             android:name="tweet"
             app:argType="long" />
+        <action
+            android:id="@+id/action_tweet_thread_dst_to_compose_sheet_dst"
+            app:destination="@id/compose_sheet_dst" />
     </fragment>
+
+    <dialog
+        android:id="@+id/compose_sheet_dst"
+        android:name="de.tolunla.icarus.view.ComposeTweetFragment"
+        tools:layout="@layout/dialog_compose_tweet" />
 
 </navigation>

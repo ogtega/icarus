@@ -78,6 +78,10 @@ class MainActivity : AppCompatActivity() {
                 finish()
             }
         }
+
+        binding.floatingActionButton.setOnClickListener {
+            navController.navigate(R.id.compose_sheet_dst)
+        }
     }
 
     private fun setupNavigation() {
