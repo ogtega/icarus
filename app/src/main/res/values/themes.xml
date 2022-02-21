@@ -4,17 +4,18 @@
         <!-- Primary brand color. -->
         <item name="colorPrimary">@color/white</item>
         <item name="colorPrimaryVariant">@color/white</item>
+        <item name="colorPrimaryContainer">@color/twitter_blue</item>
+        <item name="colorOnPrimaryContainer">@color/white</item>
         <item name="colorOnPrimary">@color/black</item>
         <!-- Secondary brand color. -->
         <item name="colorSecondary">@color/twitter_blue</item>
         <item name="colorSecondaryVariant">@color/twitter_blue</item>
+        <item name="colorSecondaryContainer">@color/twitter_blue</item>
+        <item name="colorOnSecondaryContainer">@color/white</item>
         <item name="colorOnSecondary">@color/white</item>
         <!-- Status bar color. -->
         <item name="android:statusBarColor" tools:targetApi="l">?attr/colorPrimaryVariant</item>
         <item name="android:windowLightStatusBar" tools:targetApi="m">true</item>
         <!-- Customize your theme here. -->
-        <item name="bottomNavigationStyle">
-            @style/Widget.Material3.BottomNavigationView
-        </item>
     </style>
 </resources>
