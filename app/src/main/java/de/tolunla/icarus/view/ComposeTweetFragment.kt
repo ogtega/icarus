@@ -17,6 +17,7 @@ import de.tolunla.icarus.db.entity.Tweet
 import de.tolunla.icarus.net.Twitter
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import kotlinx.serialization.decodeFromString
 import kotlinx.serialization.json.Json
 import javax.inject.Inject
@@ -59,7 +60,10 @@ class ComposeTweetFragment : BottomSheetDialogFragment() {
                 twitter.postTweet(status)?.let { res ->
                     val tweet = jsonFormat.decodeFromString<Tweet>(res)
                     tweetDao.insertAll(listOf(tweet))
-                    dialog?.dismiss()
+
+                    withContext(Dispatchers.Main) {
+                        dialog?.dismiss()
+                    }
                 }
             }
         }
