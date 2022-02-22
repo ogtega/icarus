@@ -6,11 +6,9 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import kotlinx.serialization.decodeFromString
 import kotlinx.serialization.json.Json
-import okhttp3.HttpUrl
+import okhttp3.*
 import okhttp3.HttpUrl.Companion.toHttpUrl
-import okhttp3.OkHttpClient
-import okhttp3.Request
-import okhttp3.RequestBody
+import java.text.Normalizer
 import javax.inject.Inject
 import javax.inject.Singleton
 
@@ -49,6 +47,15 @@ class Twitter @Inject constructor(private val client: OkHttpClient) {
         }
 
         return Request.Builder().get(url.build())
+    }
+
+    suspend fun postTweet(status: String): String? {
+        val url = "https://api.twitter.com/1.1/statuses/update.json".toHttpUrl()
+            .newBuilder()
+
+        url.addQueryParameter("status", status)
+
+        return Request.Builder().post(url.build(), FormBody.Builder().build())
     }
 
     private suspend fun Request.Builder.post(url: HttpUrl, reqBody: RequestBody): String? {
